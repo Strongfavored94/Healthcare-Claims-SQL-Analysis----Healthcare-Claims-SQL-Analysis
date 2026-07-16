@@ -1,0 +1,34 @@
+-- 1. Total claims, billed amount, paid amount, and denied claims
+SELECT
+    COUNT(*) AS total_claims,
+    SUM(billed_amount) AS total_billed,
+    SUM(paid_amount) AS total_paid,
+    SUM(CASE WHEN claim_status = 'Denied' THEN 1 ELSE 0 END) AS denied_claims
+FROM claims;
+
+-- 2. Denial rate by department
+SELECT
+    department,
+
+    COUNT(*) AS total_claims,
+    SUM(CASE WHEN claim_status = 'Denied' THEN 1 ELSE 0 END) AS denied_claims,
+    ROUND(
+        100.0 * SUM(CASE WHEN claim_status = 'Denied' THEN 1 ELSE 0 END) / COUNT(*),
+        2
+    ) AS denial_rate_percent
+FROM claims
+GROUP BY department
+ORDER BY denial_rate_percent DESC;
+
+-- 3. Claims performance by insurance provider
+SELECT
+    insurance_provider,
+    COUNT(*) AS total_claims,
+    SUM(billed_amount) AS total_billed,
+    SUM(paid_amount) AS total_paid,
+    SUM(billed_amount - paid_amount) AS unpaid_amount
+FROM claims
+GROUP BY insurance_provider
+ORDER BY unpaid_amount DESC;
+
+
